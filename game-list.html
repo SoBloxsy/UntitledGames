@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta id="viewport" name="viewport"
+    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover">
+    <title>Game List | UntitledGames</title>
+    <!-- Google tag (gtag.js) -->
+
+    <link rel="icon" href="/ico.png">
+    <link rel="stylesheet" href="index.css" data-n-g="">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Paytone+One&family=Roboto&display=swap');
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            // Function to fetch local JSON data
+            async function fetchLocalData(url) {
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                }
+            }
+
+            // Function to create and display game elements
+            function displayGame(game) {
+                const firstCharacter = game.Name.charAt(0).toUpperCase(); // Get the first character of the game name
+                const gameContainer = document.getElementById("gamelist");
+                let sectionId = firstCharacter;
+
+                if (!firstCharacter.match(/[A-Z]/)) {
+                    sectionId = "special"; // Create a special section for non-letter characters
+                }
+
+                let letterSection = document.getElementById(sectionId);
+
+                if (!letterSection) {
+                    const sectionDiv = document.createElement("div");
+                    sectionDiv.classList.add("letter-section");
+                    sectionDiv.id = sectionId;
+
+                    const letterHeading = document.createElement("h3");
+                    letterHeading.textContent = sectionId === "special" ? "#" : firstCharacter;
+
+                    sectionDiv.appendChild(letterHeading);
+                    gameContainer.appendChild(sectionDiv);
+                }
+
+                const gameLink = document.createElement("a");
+                gameLink.href = "playgame.html?id=" + game.id;
+
+                const gameDiv = document.createElement("div");
+                gameDiv.classList.add("gamelist");
+                gameDiv.classList.add("popupbtn");
+
+                const gameName = document.createElement("h2");
+                gameName.textContent = game.Name;
+
+                const gameId = document.createElement("p");
+                gameId.textContent = game.id;
+                gameId.classList.add("gameid");
+
+                gameDiv.appendChild(gameName);
+                gameDiv.appendChild(gameId);
+                gameLink.appendChild(gameDiv);
+                letterSection = document.getElementById(sectionId); // Get the section again in case it was just created
+                letterSection.appendChild(gameLink);
+            }
+
+            // Function to sort games alphabetically by name
+            function sortGamesAlphabetically(games) {
+                return games.sort((a, b) => a.Name.localeCompare(b.Name));
+            }
+
+            // Main function to fetch data, sort games, and display them
+            async function main() {
+                const gamesData = await fetchLocalData("https://sobloxsy.com/games.json");
+                const sortedGames = sortGamesAlphabetically(gamesData);
+                var url = new URL(window.location.href);
+                var searchParams = url.searchParams;
+
+                if (searchParams.get('sort') === null && searchParams.get('search') === null) {
+                    
+                    console.log(searchParams.get('sort'))
+                    sortedGames.forEach(game => {
+                        displayGame(game);
+                    });
+                } else if (searchParams.get('sort') !== null) {
+                    document.title = searchParams.get('sort') + ' Games | UntitledGames';
+                    const Games = gamesData.filter(game => game.category === searchParams.get('sort'));
+                    const nsortedGames = Games.sort((a, b) => a.id - b.id);
+                    nsortedGames.forEach(game => {
+                        displayGame(game);
+                    });
+                } if (searchParams.get('search') !== null) {
+                    document.title = searchParams.get('search') + ' | UntitledGames';
+                    const searchText = String(searchParams.get('search')).toLowerCase();
+
+                    const Games = gamesData.filter(game => String(game.Name).toLowerCase().includes(searchText));
+
+                    const nsortedGames = Games.sort((a, b) => a.id - b.id);
+                    nsortedGames.forEach(game => {
+                        displayGame(game);
+                    });
+                }
+
+
+
+            }
+
+            // Call the main function
+            main();
+        });
+    </script>
+    <script async src="https://fundingchoicesmessages.google.com/i/pub-9568807537922285?ers=1"
+        nonce="m9cPfxkDuuqAHy4Fa3KJrQ"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9568807537922285"
+        crossorigin="anonymous"></script>
+    <script
+        nonce="m9cPfxkDuuqAHy4Fa3KJrQ">(function () { function signalGooglefcPresent() { if (!window.frames['googlefcPresent']) { if (document.body) { const iframe = document.createElement('iframe'); iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'; iframe.style.display = 'none'; iframe.name = 'googlefcPresent'; document.body.appendChild(iframe); } else { setTimeout(signalGooglefcPresent, 0); } } } signalGooglefcPresent(); })();</script>
+
+    <script>window.msAdsQueue = window.msAdsQueue || [];</script>
+
+</head>
+
+<body>
+    <div id="header" , class="header"></div>
+    <div id="gamelist">
+
+        <!-- Game list will be displayed here -->
+    </div>
+    <div id="footer" class="footer"></div>
+</body>
+<script type="text/javascript" async="" src="header.js"></script>
+
+</html>
