@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 createbtn('Big Picture', 'fullscreenButton', 'fullscreen')
                 createbtn('Theater', 'theaterButton', 'open_in_full', 0)
                 createbtn('Share', 'shareButton', 'share')
-                createbtn('New Tab', 'moreLikeButton', 'add_to_photos', 45)
+                createbtn('New Tab', 'moreLikeButton', 'add_to_photos', 0)
 
                 moreLikeA.appendChild(moreLikeBtn);
                 bottombar.appendChild(moreLikeA);
@@ -184,39 +184,34 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 document.getElementById('moreLikeButton').addEventListener('click', function (event) {
-                    // window.open(('/game-list.html?sort=' + matchingGame.category), '_blank');
-                    // Open a new tab/window
-                    var newWindow = window.open();
-
-                    // Wait for the new window to finish loading
-                    newWindow.addEventListener('load', function () {
-                        // Create a new iframe element
-                        var iframe = document.createElement('iframe');
-
-                        // Set iframe properties
-                        iframe.src = 'about:blank';  // Load a blank page
-                        iframe.width = '100%';
-                        iframe.height = '100%';
-                        iframe.src = matchingGame.url
-                        iframe.style.border = 0
-
-                        var wm = document.createElement('img');
-                        wm.src = 'https://socoolgames.sobloxsy.com/socoolgames.png'
-                        wm.style.border = 0
-                        wm.style.width = '140px';
-                        wm.style.position = 'fixed';
-                        wm.style.bottom = '0px';
-                        wm.style.right = '0px';
-                        wm.style.zIndex = 3;
-
-                        // Append the iframe to the new window's document body
-                        newWindow.document.body.appendChild(iframe);
-                        newWindow.document.body.appendChild(wm);
-                        newWindow.document.body.style.margin = 0
-                        newWindow.document.title = 'New Tab'
-                    });
-
-                })
+                    // Open a new blank tab/window
+                    var newWindow = window.open('', '_blank');
+                
+                    if (newWindow) {
+                        // Create a new HTML document
+                        newWindow.document.open();
+                        newWindow.document.write(`
+                            <html>
+                            <head>
+                                <title>New Tab</title>
+                                <style>
+                                    body { margin: 0; }
+                                    iframe { width: 100%; height: 100%; border: 0; }
+                                    .wm { position: fixed; bottom: 0; right: 0; z-index: 3; }
+                                </style>
+                            </head>
+                            <body>
+                                <iframe src="${matchingGame.url}"></iframe>
+                                <img src="https://socoolgames.sobloxsy.com/socoolgames.png" class="wm" width="140" />
+                            </body>
+                            </html>
+                        `);
+                        newWindow.document.close(); // Ensure the document is fully written
+                    } else {
+                        console.error('Failed to open new window.');
+                    }
+                });
+                
 
                 document.getElementById('theaterButton').addEventListener('click', function (event) {
                     // document.getElementById('theaterbox').append(gameFrame)
