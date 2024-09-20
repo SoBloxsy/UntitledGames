@@ -3,7 +3,7 @@
 
 <head>
     <meta id="viewport" name="viewport"
-    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover">
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover">
     <title>Game List | UntitledGames</title>
     <!-- Google tag (gtag.js) -->
 
@@ -16,75 +16,116 @@
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
             // Function to fetch local JSON data
+
             async function fetchLocalData(url) {
+                const cacheKey = 'cachedData';
+                const timestampKey = 'cacheTimestamp';
+                const cacheDuration = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
                 try {
+                    // Get cached data and timestamp from localStorage
+                    const cachedData = localStorage.getItem(cacheKey);
+                    const cachedTimestamp = localStorage.getItem(timestampKey);
+
+                    // Check if we have cached data and if it's still valid
+                    if (cachedData && cachedTimestamp) {
+                        const now = Date.now();
+                        const lastFetchTime = parseInt(cachedTimestamp, 10);
+
+                        // If data is less than 24 hours old, return cached data
+                        if (now - lastFetchTime < cacheDuration) {
+                            return JSON.parse(cachedData);
+                        }
+                    }
+
+                    // If no valid cache, fetch new data
                     const response = await fetch(url);
                     const data = await response.json();
+
+                    // Save new data and timestamp to localStorage
+                    localStorage.setItem(cacheKey, JSON.stringify(data));
+                    localStorage.setItem(timestampKey, Date.now().toString());
+
                     return data;
+
                 } catch (error) {
                     console.error("Error fetching data:", error);
                 }
             }
 
+
+
             // Function to create and display game elements
             function displayGame(game) {
-                const firstCharacter = game.Name.charAt(0).toUpperCase(); // Get the first character of the game name
-                const gameContainer = document.getElementById("gamelist");
-                let sectionId = firstCharacter;
+    // Ensure Name is a string, and handle cases where it's null or undefined
+    const gameName = game.Name != null ? String(game.Name) : "";
 
-                if (!firstCharacter.match(/[A-Z]/)) {
-                    sectionId = "special"; // Create a special section for non-letter characters
-                }
+    const firstCharacter = gameName.charAt(0).toUpperCase(); // Safely get the first character
+    const gameContainer = document.getElementById("gamelist");
+    let sectionId = firstCharacter;
 
-                let letterSection = document.getElementById(sectionId);
+    // Handle non-letter characters or empty names
+    if (!firstCharacter.match(/[A-Z]/)) {
+        sectionId = "special"; // Create a special section for non-letter characters or empty names
+    }
 
-                if (!letterSection) {
-                    const sectionDiv = document.createElement("div");
-                    sectionDiv.classList.add("letter-section");
-                    sectionDiv.id = sectionId;
+    let letterSection = document.getElementById(sectionId);
 
-                    const letterHeading = document.createElement("h3");
-                    letterHeading.textContent = sectionId === "special" ? "#" : firstCharacter;
+    if (!letterSection) {
+        const sectionDiv = document.createElement("div");
+        sectionDiv.classList.add("letter-section");
+        sectionDiv.id = sectionId;
 
-                    sectionDiv.appendChild(letterHeading);
-                    gameContainer.appendChild(sectionDiv);
-                }
+        const letterHeading = document.createElement("h3");
+        letterHeading.textContent = sectionId === "special" ? "#" : firstCharacter;
 
-                const gameLink = document.createElement("a");
-                gameLink.href = "playgame.html?id=" + game.id;
+        sectionDiv.appendChild(letterHeading);
+        gameContainer.appendChild(sectionDiv);
+    }
 
-                const gameDiv = document.createElement("div");
-                gameDiv.classList.add("gamelist");
-                gameDiv.classList.add("popupbtn");
+    const gameLink = document.createElement("a");
+    gameLink.href = "playgame.html?id=" + game.id;
 
-                const gameName = document.createElement("h2");
-                gameName.textContent = game.Name;
+    const gameDiv = document.createElement("div");
+    gameDiv.classList.add("gamelist");
+    gameDiv.classList.add("popupbtn");
 
-                const gameId = document.createElement("p");
-                gameId.textContent = game.id;
-                gameId.classList.add("gameid");
+    const gameNameElement = document.createElement("h2");
+    gameNameElement.textContent = gameName; // Use the safe string-converted game name
 
-                gameDiv.appendChild(gameName);
-                gameDiv.appendChild(gameId);
-                gameLink.appendChild(gameDiv);
-                letterSection = document.getElementById(sectionId); // Get the section again in case it was just created
-                letterSection.appendChild(gameLink);
-            }
+    const gameId = document.createElement("p");
+    gameId.textContent = game.id;
+    gameId.classList.add("gameid");
+
+    gameDiv.appendChild(gameNameElement);
+    gameDiv.appendChild(gameId);
+    gameLink.appendChild(gameDiv);
+    letterSection = document.getElementById(sectionId); // Get the section again in case it was just created
+    letterSection.appendChild(gameLink);
+}
 
             // Function to sort games alphabetically by name
             function sortGamesAlphabetically(games) {
-                return games.sort((a, b) => a.Name.localeCompare(b.Name));
+                return games.sort((a, b) => {
+                    // Convert `Name` properties to strings before comparing
+                    
+                    const nameA = String(a.Name);
+                    const nameB = String(b.Name);
+                    // console.log(nameA + ' ' + nameB)
+                    return nameA.localeCompare(nameB);
+                });
             }
+
 
             // Main function to fetch data, sort games, and display them
             async function main() {
-                const gamesData = await fetchLocalData("https://sobloxsy.com/games.json");
+                const gamesData = await fetchLocalData("https://script.googleusercontent.com/macros/echo?user_content_key=vwz6k2hqZY2CVIU_GyJT6z36RSoVPHZhIaGw83q3rsjF1r3IuczTcqYXiRM-vip3nU835vN-HiCF-MUdAylT8mOWtxcp4OXYm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnP4oTBkrYnOVpvCvFHS6XYrt-tYrxo2qU6Iz6hOUeMcU-qRFxC5817RWVzqpbUZY2kZ7tyPnKUJbL5IC8n-3ssj-hdkqF3hnjNz9Jw9Md8uu&lib=Mfr2crV_BTVAM9TvuTZLv2c8bqkVDedAD");
                 const sortedGames = sortGamesAlphabetically(gamesData);
                 var url = new URL(window.location.href);
                 var searchParams = url.searchParams;
 
                 if (searchParams.get('sort') === null && searchParams.get('search') === null) {
-                    
+
                     console.log(searchParams.get('sort'))
                     sortedGames.forEach(game => {
                         displayGame(game);
@@ -116,7 +157,7 @@
             main();
         });
     </script>
-    
+
 </head>
 
 <body>

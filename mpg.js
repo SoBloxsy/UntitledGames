@@ -8,10 +8,36 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function fetchLocalData(url) {
+        const cacheKey = 'cachedData';
+        const timestampKey = 'cacheTimestamp';
+        const cacheDuration = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    
         try {
+            // Get cached data and timestamp from localStorage
+            const cachedData = localStorage.getItem(cacheKey);
+            const cachedTimestamp = localStorage.getItem(timestampKey);
+    
+            // Check if we have cached data and if it's still valid
+            if (cachedData && cachedTimestamp) {
+                const now = Date.now();
+                const lastFetchTime = parseInt(cachedTimestamp, 10);
+    
+                // If data is less than 24 hours old, return cached data
+                if (now - lastFetchTime < cacheDuration) {
+                    return JSON.parse(cachedData);
+                }
+            }
+    
+            // If no valid cache, fetch new data
             const response = await fetch(url);
             const data = await response.json();
+    
+            // Save new data and timestamp to localStorage
+            localStorage.setItem(cacheKey, JSON.stringify(data));
+            localStorage.setItem(timestampKey, Date.now().toString());
+    
             return data;
+    
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -197,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Main function to fetch data and handle search parameter
     async function main() {
-        const gamesData = await fetchLocalData("https://sobloxsy.com/games.json");
+        const gamesData = await fetchLocalData("https://script.googleusercontent.com/macros/echo?user_content_key=vwz6k2hqZY2CVIU_GyJT6z36RSoVPHZhIaGw83q3rsjF1r3IuczTcqYXiRM-vip3nU835vN-HiCF-MUdAylT8mOWtxcp4OXYm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnP4oTBkrYnOVpvCvFHS6XYrt-tYrxo2qU6Iz6hOUeMcU-qRFxC5817RWVzqpbUZY2kZ7tyPnKUJbL5IC8n-3ssj-hdkqF3hnjNz9Jw9Md8uu&lib=Mfr2crV_BTVAM9TvuTZLv2c8bqkVDedAD");
         handleSearchParams(gamesData);
 
         // Get the current game's name
